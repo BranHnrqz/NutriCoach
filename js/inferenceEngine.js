@@ -1,9 +1,9 @@
-/// CREADO POR: BRANDON HENRIQUEZ
+// Creado por: Brandon Henríquez.
 
 const inferenceEngine = {
 
     calculateIMC: function(weightKg, heightCm) {
-        const heightM = heightCm / 100; 
+        const heightM = heightCm / 100; // Convertir cm a metros
         const imc = weightKg / (heightM * heightM);
 
         let status = '';
@@ -20,13 +20,15 @@ const inferenceEngine = {
         return { imc: imc.toFixed(2), status: status };
     },
 
-    generateRecommendations: function(userData, selectedGoalId, answers) {
 
+// Genera recomendaciones basadas en los datos del usuario, el objetivo y las respuestas a las preguntas dinámicas.
+
+    generateRecommendations: function(userData, selectedGoalId, answers) {
         const { status } = this.calculateIMC(userData.weightKg, userData.heightCm); 
         let habits = "";
         let dietPlan = [];
 
-
+        // 1. Obtener recomendaciones base según el estado del IMC
         const formattedImcStatus = status.toLowerCase().replace(' ', ''); 
         const baseRecs = knowledgeBase.recommendations[formattedImcStatus];
         if (baseRecs) {
@@ -36,6 +38,7 @@ const inferenceEngine = {
             }
         }
 
+        // 2. Ajustar según el objetivo seleccionado y las respuestas dinámicas
         const detailedRecs = knowledgeBase.recommendations.detailed[selectedGoalId];
         if (detailedRecs) {
             for (const key in answers) {
@@ -53,6 +56,7 @@ const inferenceEngine = {
             }
         }
 
+        // 3. Aplicar restricciones/modificaciones específicas por padecimiento
         if (userData.ailments && userData.ailments.length > 0 && !userData.ailments.includes('none')) {
             userData.ailments.forEach(ailment => {
                 if (knowledgeBase.recommendations.ailments[ailment]) {
@@ -63,6 +67,8 @@ const inferenceEngine = {
             });
         }
 
+        // Si no se genera un plan de dieta específico (por ejemplo, si no hay baseRecs ni detailedRecs), usar uno general predeterminado.
+        // Se asegura de que siempre haya algo en dietPlan.
         if (dietPlan.length === 0) {
             if (knowledgeBase.recommendations.normal && knowledgeBase.recommendations.normal.diet && Array.isArray(knowledgeBase.recommendations.normal.diet.plan)) {
                 dietPlan = [...knowledgeBase.recommendations.normal.diet.plan]; 

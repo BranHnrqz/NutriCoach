@@ -1,18 +1,18 @@
-/* CREADO POR: BRANDON HENRIQUEZ */
+/* CREADO POR: Brandon Henriquez */
 
 :root {
     --primary-green: #4CA649; 
     --dark-green: #388437;    
-    --light-green: #d4edda;  
-    --text-dark: #212529;     
-    --text-light: #f8f9fa;     
+    --light-green: #d4edda;   
+    --text-dark: #212529;    
+    --text-light: #f8f9fa;  
     --background-light: #f0f8f0; 
     --card-bg: #ffffff;      
-    --border-color: #ced4da; 
+    --border-color: #ced4da;  
 
     --success-color: #28a745; 
     --warning-color: #ffc107; 
-    --info-color: #17a2b8;   
+    --info-color: #17a2b8;    
     --danger-color: #dc3545;  
 }
 
@@ -22,14 +22,13 @@ body {
     background-color: var(--background-light);
     color: var(--text-dark);
     min-height: 100vh; 
-    display: flex; 
-    flex-direction: column; 
+    display: flex;
+    flex-direction: column;
 }
 
 main {
-    flex-grow: 1; 
+    flex-grow: 1;
 }
-
 
 .hero-section {
     position: relative;
@@ -40,8 +39,8 @@ main {
     background-position: center;
     display: flex;
     justify-content: center; 
-    align-items: center;    
-    overflow: hidden;
+    align-items: center;     
+    overflow: hidden; 
 }
 
 .hero-overlay {
@@ -50,21 +49,21 @@ main {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); 
-    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px); 
     z-index: 1; 
 }
 
 .hero-content {
     position: relative;
-    z-index: 2;
+    z-index: 2; 
     padding: 20px;
     max-width: 800px; 
 }
 
 .hero-content h1 {
     font-weight: 700;
-    color: var(--text-light);
+    color: var(--text-light); 
     margin-bottom: 10px;
 }
 
@@ -89,7 +88,7 @@ main {
     color: var(--text-light);
     font-weight: bold;
     padding: 12px 30px;
-    border-radius: 50px;
+    border-radius: 50px; 
     transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
 }
 
@@ -100,17 +99,16 @@ main {
     transform: translateY(-2px); 
 }
 
-
 .navbar {
-    background-color: var(--primary-green) !important;
+    background-color: var(--primary-green) !important; 
 }
 
 .navbar-brand, .nav-link, .admin-icon-link {
-    color: var(--text-light) !important; 
+    color: var(--text-light) !important;
 }
 
 .navbar-brand:hover, .nav-link:hover, .admin-icon-link:hover {
-    color: rgba(255, 255, 255, 0.75) !important;
+    color: rgba(255, 255, 255, 0.75) !important; 
 }
 
 footer {
@@ -143,23 +141,20 @@ footer {
 }
 
 .goal-card.selected {
-    border: 2px solid var(--primary-green); 
+    border: 2px solid var(--primary-green);
     box-shadow: 0 0.5rem 1rem rgba(76, 166, 73, 0.2); 
     transform: scale(1.02); 
 }
-
 
 .fas {
     color: inherit;
 }
 
-
 #ailments, #editAilments {
     height: auto;
     min-height: 100px;
-    padding: 0.375rem 0.75rem; 
+    padding: 0.375rem 0.75rem;
 }
-
 
 #resHabitsRoutines li, #viewRecsHabitsRoutines li {
     margin-bottom: 5px;
@@ -179,10 +174,9 @@ footer {
     left: 0;
 }
 
-
 #resDietPlan .card, #viewRecsDietPlan .card {
-    border: 1px solid var(--light-green); 
-    background-color: var(--light-green);
+    border: 1px solid var(--light-green);
+    background-color: var(--light-green); 
 }
 
 #resDietPlan .card-header, #viewRecsDietPlan .card-header {
@@ -195,12 +189,10 @@ footer {
     margin-bottom: 0.5rem; 
 }
 
-
 .navbar-brand img {
-    height: 35px;
+    height: 35px; 
     margin-right: 10px;
 }
-
 
 .table-responsive {
     margin-top: 20px;
@@ -213,13 +205,12 @@ footer {
 }
 
 .table tbody tr:nth-child(even) {
-    background-color: var(--background-light);
+    background-color: var(--background-light); 
 }
 
 .table tbody tr:hover {
-    background-color: var(--light-green);
+    background-color: var(--light-green); 
 }
-
 
 .btn-info {
     background-color: var(--info-color);
@@ -237,7 +228,6 @@ footer {
     background-color: darken(var(--danger-color), 10%);
     border-color: darken(var(--danger-color), 10%);
 }
-
 
 .nav-tabs .nav-link {
     color: var(--text-dark); 
@@ -264,7 +254,7 @@ footer {
     border: 1px solid var(--border-color);
     border-top: none; 
     padding: 20px;
-    border-radius: 0 0 0.375rem 0.375rem;
+    border-radius: 0 0 0.375rem 0.375rem; 
 }
 
 .modal-content {
@@ -307,7 +297,7 @@ footer {
 
 @media print {
     .navbar, footer, .btn, .form-control, .form-select, .invalid-feedback, .animate__animated, .modal-backdrop, .modal {
-        display: none !important; 
+        display: none !important;
     }
     #results-display {
         display: block !important;

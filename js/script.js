@@ -1,9 +1,11 @@
+// Creado por: Brandon Henríquez.
+
 // Variables globales para almacenar los datos del usuario y el objetivo seleccionado
 let userData = {};
 let selectedGoalId = null;
 let dynamicAnswers = {};
 let currentRecommendations = {}; 
-let currentIMCResult = {};    
+let currentIMCResult = {};     
 
 // Elementos del DOM - Consulta
 const initialDataFormSection = document.getElementById('initial-data-form');
@@ -13,7 +15,6 @@ const resultsDisplaySection = document.getElementById('results-display');
 
 const userDataForm = document.getElementById('userDataForm');
 const fullNameInput = document.getElementById('fullName');
-const duiInput = document.getElementById('duiInput'); 
 const ageInput = document.getElementById('age');
 const weightInput = document.getElementById('weight');
 const weightUnitSelect = document.getElementById('weightUnit');
@@ -21,20 +22,21 @@ const convertWeightBtn = document.getElementById('convertWeightBtn');
 const heightInput = document.getElementById('height');
 const genderSelect = document.getElementById('gender');
 const ailmentsSelect = document.getElementById('ailments'); 
+const duiInput = document.getElementById('dui');
+const duiFeedback = document.getElementById('dui-feedback');
 
 const goalOptionsContainer = document.getElementById('goalOptions');
 const dynamicQuestionsForm = document.getElementById('dynamicQuestionsForm');
 
 const resFullName = document.getElementById('resFullName');
-const resDUI = document.getElementById('resDUI');
 const resAge = document.getElementById('resAge');
 const resWeight = document.getElementById('resWeight');
 const resHeight = document.getElementById('resHeight');
 const resGender = document.getElementById('resGender');
+const resDUI = document.getElementById('resDUI');
 const resAilments = document.getElementById('resAilments');
 const resIMC = document.getElementById('resIMC');
 const resIMCStatus = document.getElementById('resIMCStatus');
-const resGoal = document.getElementById('resGoal');
 const resHabitsRoutines = document.getElementById('resHabitsRoutines');
 const resDietPlan = document.getElementById('resDietPlan');
 const savePdfBtn = document.getElementById('savePdfBtn');
@@ -58,23 +60,23 @@ let viewRecommendationsModalInstance = null;
 let editUserForm = document.getElementById('editUserForm'); 
 const editUserIdInput = document.getElementById('editUserId');
 const editFullNameInput = document.getElementById('editFullName');
-const editDUIInput = document.getElementById('editDUI'); 
-const editAgeInput = document.getElementById('editAge');
+const editAgeInput = document.getElementById('editAge'); 
 const editWeightInput = document.getElementById('editWeight');
 const editHeightInput = document.getElementById('editHeight');
 let editGenderSelect = document.getElementById('editGender'); 
+const editDuiContainer = document.getElementById('editDuiContainer');
+const editDUIInput = document.getElementById('editDUI');
+const editDuiFeedback = document.getElementById('editDui-feedback');
 let editAilmentsSelect = document.getElementById('editAilments'); 
-let editGoalSelect = document.getElementById('editGoal');
+let editGoalSelect = document.getElementById('editGoal'); 
 const editDynamicQuestionsContainer = document.getElementById('editDynamicQuestionsContainer');
 
-//Elementos del DOM para el modal de ver recomendaciones
+// Elementos del DOM para el modal de ver recomendaciones
 const viewRecsHabitsRoutines = document.getElementById('viewRecsHabitsRoutines');
 const viewRecsDietPlan = document.getElementById('viewRecsDietPlan');
 
 
-//Elemento para el enlace Home
 const homeLink = document.getElementById('home-link');
-//Elemento para la pestaña de usuarios en el admin
 const usersTabBtn = document.getElementById('users-tab');
 
 
@@ -94,9 +96,6 @@ function showSection(sectionToShow) {
 // Función para poblar las opciones de objetivos
 function populateGoalOptions() {
     goalOptionsContainer.innerHTML = ''; 
-
-    // Verificación para asegurarse de que knowledgeBase.goals esté disponible
-    // Usamos 'window.knowledgeBase' para asegurar que accedemos a la variable global
     if (!window.knowledgeBase || !window.knowledgeBase.goals || window.knowledgeBase.goals.length === 0) {
         console.error("No se encontraron objetivos en la base de conocimientos. La knowledgeBase puede no haberse cargado correctamente o Firestore no la devolvió.");
         return;
@@ -122,16 +121,15 @@ function populateGoalOptions() {
             document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             selectedGoalId = card.dataset.goalId; 
-           
             populateDynamicQuestions(selectedGoalId, dynamicQuestionsForm);
             showSection(dynamicQuestionsSection);
         });
     });
 }
 
+// Función para poblar preguntas dinámicas basadas en el objetivo
 function populateDynamicQuestions(goalId, formContainer, currentAnswers = {}) {
-    formContainer.innerHTML = ''; 
-
+    formContainer.innerHTML = '';
     if (!window.knowledgeBase || !window.knowledgeBase.questions) {
         console.error("window.knowledgeBase.questions no está disponible. No se pueden cargar las preguntas dinámicas.");
         return;
@@ -140,7 +138,6 @@ function populateDynamicQuestions(goalId, formContainer, currentAnswers = {}) {
     const goalQuestions = window.knowledgeBase.questions[goalId];
 
     if (!goalQuestions || goalQuestions.length === 0) {
-       
         if (formContainer === dynamicQuestionsForm) {
             const submitBtn = document.createElement('button');
             submitBtn.type = 'submit';
@@ -162,12 +159,11 @@ function populateDynamicQuestions(goalId, formContainer, currentAnswers = {}) {
             select.id = q.id;
             select.required = true;
 
-            
             const defaultOpt = document.createElement('option');
             defaultOpt.value = "";
             defaultOpt.textContent = "Selecciona...";
             defaultOpt.disabled = true;
-            defaultOpt.selected = true; // Por defecto seleccionada
+            defaultOpt.selected = true; 
 
             select.appendChild(defaultOpt);
 
@@ -191,8 +187,6 @@ function populateDynamicQuestions(goalId, formContainer, currentAnswers = {}) {
                 input.className = 'form-check-input';
                 input.type = 'radio';
                 input.name = q.id;
-
-                // ID único para cada radio button para evitar conflictos en el DOM
                 
                 input.id = `${q.id}-${option.value.replace(/\s/g, '_')}-${formContainer.id || 'form'}`;
                 input.value = option.value;
@@ -220,10 +214,9 @@ function populateDynamicQuestions(goalId, formContainer, currentAnswers = {}) {
             div.appendChild(input);
         }
 
-        formContainer.appendChild(div); // Añadir al formulario
+        formContainer.appendChild(div); 
     });
 
-    // Solo si es el formulario de consulta inicial, añadir el botón de submit
     if (formContainer === dynamicQuestionsForm) {
         const submitBtn = document.createElement('button');
         submitBtn.type = 'submit';
@@ -232,6 +225,7 @@ function populateDynamicQuestions(goalId, formContainer, currentAnswers = {}) {
         formContainer.appendChild(submitBtn);
     }
 }
+
 
 // --- Lógica de Inferencia ---
 const inferenceEngine = {
@@ -266,13 +260,13 @@ const inferenceEngine = {
 
         // 2. Recomendación de dieta basada en padecimientos (prioridad alta)
         if (user.ailments && user.ailments.length > 0) {
-            // Ordenar padecimientos para generar una clave consistente
+            
             const sortedAilments = [...user.ailments].sort();
             const combinationKey = sortedAilments.join('_');
 
             let foundAilmentDiet = false;
 
-            // Intentar encontrar una dieta combinada específica
+            
             if (kb.recommendations.alternativeDietPlans && kb.recommendations.alternativeDietPlans.combinations) {
                 const combinedDiet = kb.recommendations.alternativeDietPlans.combinations[combinationKey];
                 if (combinedDiet) {
@@ -286,7 +280,6 @@ const inferenceEngine = {
                 }
             }
 
-            // Si no hay combinación específica, añadir restricciones individuales
             if (!foundAilmentDiet) {
                 user.ailments.forEach(ailmentId => {
                     const ailmentRec = kb.recommendations.ailments[ailmentId];
@@ -301,7 +294,7 @@ const inferenceEngine = {
         if (user.selectedGoalId) {
             const goalRec = kb.recommendations.detailed[user.selectedGoalId];
             if (goalRec) {
-                
+               
                 const userDynamicAnswers = user.dynamicAnswers || {};
                 Object.keys(userDynamicAnswers).forEach(questionId => {
                     const answerKey = `${questionId}_${userDynamicAnswers[questionId]}`;
@@ -316,8 +309,6 @@ const inferenceEngine = {
                     }
                 });
 
-                // Si no hay dietas por padecimientos y el objetivo es, por ejemplo, pérdida de peso,
-                // entonces la dieta principal es la del IMC + ajustes del objetivo.
                 const specificGoalDiet = kb.recommendations.alternativeDietPlans?.individual?.[user.selectedGoalId];
                 if (specificGoalDiet && dietPlan.length === 0 && (!user.ailments || user.ailments.length === 0)) {
                     dietPlan.push(specificGoalDiet);
@@ -332,12 +323,11 @@ const inferenceEngine = {
             }
         }
 
-        // Combinar todas las restricciones de dieta en una sola recomendación de hábitos
+       
         if (dietRestrictions.length > 0) {
             habitsRoutines.push(`**Consideraciones Dietéticas Adicionales por Padecimientos:** ${dietRestrictions.join(' ')}`);
         }
 
-        // Filtrar hábitos duplicados o vacíos
         habitsRoutines = [...new Set(habitsRoutines.filter(h => h && h.trim() !== ''))];
 
         return {
@@ -347,17 +337,15 @@ const inferenceEngine = {
         };
     }
 };
+
+
 // --- Funciones de Firebase ---
 
 /**
  * Función para subir la base de conocimientos a Firestore.
- * Se llama si no se encuentra la KB en Firestore.
- * Retorna true si la subida fue exitosa, false de lo contrario.
  */
-
 async function uploadKnowledgeBaseToFirestore() {
     try {
-
         if (typeof window.knowledgeBase === 'undefined' || Object.keys(window.knowledgeBase).length === 0 || !window.knowledgeBase.goals) {
             console.warn("La variable 'knowledgeBase' no está definida o está vacía. Asegúrate de que knowledgeBase.js se cargue ANTES de esta función para la subida inicial.");
             return false;
@@ -365,34 +353,34 @@ async function uploadKnowledgeBaseToFirestore() {
 
         await db.collection('knowledgeBase').doc('current').set(window.knowledgeBase);
         console.log("Base de conocimientos subida a Firestore exitosamente.");
-        alert("Base de conocimientos subida a Firestore. Ahora puedes comentar la línea de carga de knowledgeBase.js en app.html para futuras ejecuciones.");
+      
         return true;
     } catch (error) {
         console.error("Error al subir la base de conocimientos a Firestore: ", error);
-        alert("Error al subir la base de conocimientos. Revisa la consola y tus reglas de seguridad de Firestore. El error es: " + error.message);
+       
+        showCustomAlert("Error al subir la base de conocimientos. Revisa la consola y tus reglas de seguridad de Firestore. El error es: " + error.message);
         return false;
     }
 }
 
 /**
  * Función para cargar la base de conocimientos desde Firestore.
- * Retorna true si la carga fue exitosa, false si el documento no existe (pero sin error de conexión).
  */
 async function loadKnowledgeBaseFromFirestore() {
     try {
         const doc = await db.collection('knowledgeBase').doc('current').get();
         if (doc.exists) {
-            window.knowledgeBase = doc.data();
+            window.knowledgeBase = doc.data(); 
             console.log("Base de conocimientos cargada desde Firestore.");
             return true;
         } else {
             console.warn("No se encontró el documento 'current' en la colección 'knowledgeBase' en Firestore.");
-            return false;
+            return false; 
         }
     } catch (error) {
         console.error("Error al cargar la base de conocimientos desde Firestore: ", error);
-        alert("Error crítico al cargar la base de conocimientos. Revisa tu conexión a Firebase, tus credenciales o si la base de datos existe. El error es: " + error.message);
-        return false; // Error real de conexión o permisos
+        showCustomAlert("Error crítico al cargar la base de conocimientos. Revisa tu conexión a Firebase, tus credenciales o si la base de datos existe. El error es: " + error.message);
+        return false; 
     }
 }
 
@@ -410,6 +398,7 @@ async function initApp() {
         viewRecommendationsModalInstance = new bootstrap.Modal(document.getElementById('viewRecommendationsModal'));
     }
 
+
     if (!loaded) {
         console.log("KB no encontrada en Firestore, intentando subirla desde knowledgeBase.js...");
 
@@ -421,11 +410,11 @@ async function initApp() {
                 showSection(initialDataFormSection);
             } else {
                 console.error("Fallo crítico: No se pudo cargar ni subir la base de conocimientos. La aplicación no puede iniciar correctamente.");
-                alert("¡Error grave! No se pudo cargar ni inicializar la base de conocimientos. Por favor, revisa la consola para más detalles y asegúrate de que tus credenciales y reglas de Firebase sean correctas.");
+                showCustomAlert("¡Error grave! No se pudo cargar ni inicializar la base de conocimientos. Por favor, revisa la consola para más detalles y asegúrate de que tus credenciales y reglas de Firebase sean correctas.");
             }
         } else {
             console.error("Fallo crítico: knowledgeBase.js no está cargado/definido y la KB no está en Firestore. No se puede inicializar la aplicación.");
-            alert("¡Error grave! La base de conocimientos no se cargó. Asegúrate de que 'knowledgeBase.js' esté cargado y definido ANTES de que intente buscar en Firebase la primera vez.");
+            showCustomAlert("¡Error grave! La base de conocimientos no se cargó. Asegúrate de que 'knowledgeBase.js' esté cargado y definido ANTES de que intente buscar en Firebase la primera vez.");
         }
     } else {
         console.log("KB cargada desde Firestore. La aplicación puede iniciar.");
@@ -434,11 +423,61 @@ async function initApp() {
     }
 }
 
-// Listeners
+
+// --- Escuchadores de Eventos ---
 
 document.addEventListener('DOMContentLoaded', initApp);
 
-//Listener para el botón/enlace Home
+duiInput.addEventListener('input', function(event) {
+    let value = event.target.value.replace(/[^0-9]/g, ''); 
+    if (value.length > 8) {
+        value = value.substring(0, 8) + '-' + value.substring(8, 9);
+    }
+    event.target.value = value;
+    validateDUI(event.target); 
+});
+
+duiInput.addEventListener('blur', function(event) {
+    validateDUI(event.target);
+});
+
+// Función de validación de formato del DUI
+function validateDUI(inputElement) {
+    const duiRegex = /^[0-9]{8}-[0-9]{1}$/;
+    if (inputElement.value.match(duiRegex)) {
+        inputElement.classList.remove('is-invalid');
+        inputElement.classList.add('is-valid');
+        duiFeedback.textContent = '';
+        return true;
+    } else {
+        inputElement.classList.add('is-invalid');
+        inputElement.classList.remove('is-valid');
+        duiFeedback.textContent = 'Por favor, ingrese un DUI válido (XXXXXXXX-X).';
+        return false;
+    }
+}
+
+function validateEditDUI(inputElement, containerElement) {
+
+    if (containerElement.style.display !== 'none') {
+        const duiRegex = /^[0-9]{8}-[0-9]{1}$/;
+        if (inputElement.value.match(duiRegex)) {
+            inputElement.classList.remove('is-invalid');
+            inputElement.classList.add('is-valid');
+            editDuiFeedback.textContent = '';
+            return true;
+        } else {
+            inputElement.classList.add('is-invalid');
+            inputElement.classList.remove('is-valid');
+            editDuiFeedback.textContent = 'Por favor, ingrese un DUI válido (XXXXXXXX-X).';
+            return false;
+        }
+    }
+    return true; 
+}
+
+
+// Listener para el botón/enlace Home
 homeLink.addEventListener('click', (e) => {
     e.preventDefault();
     reviewOptionsBtn.click(); 
@@ -457,11 +496,11 @@ convertWeightBtn.addEventListener('click', () => {
     }
 
     if (unit === 'lbs') {
-        weight = weight * 0.453592; // Convertir lbs a kg
-        alert(`El peso en Kg es: ${weight.toFixed(2)} kg`);
+        weight = weight * 0.453592; 
+        showCustomAlert(`El peso en Kg es: ${weight.toFixed(2)} kg`);
     } else {
-        weight = weight / 0.453592; // Convertir kg a lbs
-        alert(`El peso en Lbs es: ${weight.toFixed(2)} lbs`);
+        weight = weight / 0.453592; 
+        showCustomAlert(`El peso en Lbs es: ${weight.toFixed(2)} lbs`);
     }
 });
 
@@ -470,73 +509,44 @@ convertWeightBtn.addEventListener('click', () => {
 userDataForm.addEventListener('submit', async (e) => {
     e.preventDefault(); 
 
-    if (!userDataForm.checkValidity()) {
+    let formIsValid = userDataForm.checkValidity();
+    const duiIsValid = validateDUI(duiInput); 
+    if (!formIsValid || !duiIsValid) {
         e.stopPropagation();
         userDataForm.classList.add('was-validated');
         return;
     }
 
-// Validación del formato del DUI
-    const duiValue = duiInput.value.trim();
-    const ageValue = parseInt(ageInput.value); // Obtener la edad
-    const duiRegex = /^\d{8}-\d{1}$/; // Formato esperado: 8 dígitos, guion, 1 dígito
+    const newDUI = duiInput.value;
+    const newAge = parseInt(ageInput.value);
 
-    if (!duiRegex.test(duiValue)) {
-        duiInput.classList.add('is-invalid');
-        duiInput.nextElementSibling.textContent = 'El formato del DUI debe ser 01234567-8';
-        return;
-    } else {
-        duiInput.classList.remove('is-invalid');
-        duiInput.nextElementSibling.textContent = 'Por favor, ingresa un DUI válido (9 dígitos y guion).';
-    }
+    let querySnapshot = null;
 
-    // Validación de DUIs (Usuarios mayores de edad, no pueden repetirlo; menores, si)
+    // Verificar si el DUI ya existe
     try {
         const usersRef = db.collection('users');
-        const querySnapshot = await usersRef.where('dui', '==', duiValue).get();
+        querySnapshot = await usersRef.where('dui', '==', newDUI).get(); // Asigna el valor aquí
 
         if (!querySnapshot.empty) {
-            // Si el DUI ya existe, verificamos si es una excepción válida
-            let isDuplicateButAllowed = false;
-
-            querySnapshot.forEach(doc => {
-                const existingUser = doc.data();
-                const existingUserAge = parseInt(existingUser.age);
-
-                // Esto permite al menor usar el DUI del responsable.
-                if (existingUserAge >= 18 && ageValue < 18) {
-                    isDuplicateButAllowed = true;
-                }
-               
-                // Esto permite al responsable registrarse si ya tiene un menor a su cargo con ese DUI.
-                else if (existingUserAge < 18 && ageValue >= 18) {
-                    isDuplicateButAllowed = true;
-                }
-                // Si el DUI existe y NO es ninguna de las excepciones anteriores (ambos son adultos o ambos son menores con el mismo DUI),
-                // entonces es una duplicación no permitida.
-                else if (existingUserAge >= 18 && ageValue >= 18) {
-                    isDuplicateButAllowed = false;
-                }
-        
-                else if (existingUserAge < 18 && ageValue < 18) {
-                    isDuplicateButAllowed = false;
-                }
-            });
-
-            if (!isDuplicateButAllowed) {
-                alert('ERROR: El Usuario que intentas ingresar YA HA SIDO REGISTRADO con este DUI y no cumple las condiciones para ser un registro de responsable/menor.');
-                return; 
+            if (newAge >= 18) {
+                duiInput.classList.add('is-invalid');
+                duiFeedback.textContent = 'Este DUI ya está registrado para un usuario mayor de edad.';
+                e.stopPropagation();
+                userDataForm.classList.add('was-validated');
+                return;
+            } else {
+                console.log(`DUI ${newDUI} ya existe, pero se permite porque el usuario es menor de edad.`);
             }
         }
     } catch (error) {
-        console.error("Error al verificar DUI duplicado:", error);
-        alert("Ocurrió un error al verificar el DUI. Por favor, intenta de nuevo.");
+        console.error("Error al verificar unicidad del DUI:", error);
+        showCustomAlert("Error al verificar la unicidad del DUI. Por favor, inténtelo de nuevo.");
+        e.stopPropagation();
+        userDataForm.classList.add('was-validated');
         return;
     }
 
-    // Recolectar datos del usuario
     const selectedAilments = Array.from(ailmentsSelect.selectedOptions).map(option => option.value);
-   
     const actualAilments = selectedAilments.includes('none') && selectedAilments.length > 1
         ? selectedAilments.filter(a => a !== 'none')
         : (selectedAilments.includes('none') && selectedAilments.length === 1 ? [] : selectedAilments);
@@ -544,16 +554,15 @@ userDataForm.addEventListener('submit', async (e) => {
 
     userData = {
         fullName: fullNameInput.value.trim(),
-        dui: duiInput.value.trim(),
         age: parseInt(ageInput.value),
-        weightKg: parseFloat(weightInput.value), // Supuestamente siempre se guarda en KG xd. (ojalá)
+        weightKg: parseFloat(weightInput.value), // Supuestamente siempre se guarda en Kg (Ojalá xd)
         heightCm: parseFloat(heightInput.value),
         gender: genderSelect.value,
+        dui: duiInput.value,
+        isResponsibleDUI: (newAge < 18 && querySnapshot && !querySnapshot.empty), 
         ailments: actualAilments
     };
 
-
-    // Si se guarda exitosamente, proceder a la siguiente sección
     populateGoalOptions(); 
     showSection(goalSelectionSection);
 
@@ -565,14 +574,13 @@ userDataForm.addEventListener('submit', async (e) => {
 dynamicQuestionsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Validar el formulario de preguntas dinámicas
     if (!dynamicQuestionsForm.checkValidity()) {
         e.stopPropagation();
         dynamicQuestionsForm.classList.add('was-validated');
         return;
     }
 
-    // Respuestas dinámicas
+    // Recolectar respuestas dinámicas
     dynamicAnswers = {};
     const goalQuestions = window.knowledgeBase.questions[selectedGoalId];
 
@@ -611,23 +619,22 @@ dynamicQuestionsForm.addEventListener('submit', async (e) => {
     try {
         const usersCollection = db.collection('users');
         const docRef = await usersCollection.add({
-            ...userData,
+            ...userData, 
             selectedGoalId: selectedGoalId,
             dynamicAnswers: dynamicAnswers,
             imcResult: currentIMCResult,
             recommendations: currentRecommendations,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp() // Agrega la marca de tiempo del servidor
+            timestamp: firebase.firestore.FieldValue.serverTimestamp() 
         });
         console.log("Datos completos del usuario guardados en Firestore con ID: ", docRef.id);
-        userData.firestoreId = docRef.id; // Guarda el ID de Firestore en el objeto userData
+        userData.firestoreId = docRef.id; 
 
     } catch (error) {
         console.error("Error al guardar los datos completos del usuario en Firestore: ", error);
-        alert("Hubo un error al guardar tus datos. Por favor, inténtalo de nuevo. El error es: " + error.message);
+        showCustomAlert("Hubo un error al guardar tus datos. Por favor, inténtalo de nuevo. El error es: " + error.message);
         dynamicQuestionsForm.classList.add('was-validated'); 
         return; 
     }
-
 
     // Mostrar resultados
     displayResults(fullUserData, currentRecommendations, currentIMCResult);
@@ -636,371 +643,340 @@ dynamicQuestionsForm.addEventListener('submit', async (e) => {
     dynamicQuestionsForm.classList.remove('was-validated');
 });
 
-function displayResults(user, recommendations, imcResult, incomingElements) {
 
-    // --- DIAGNÓSTICO GENERAL ---
-    console.log(">>> displayResults INICIO <<<");
-    console.log("User object recibido en displayResults:", user);
-    console.log("Recommendations object recibido en displayResults:", recommendations);
-    console.log("IMC Result recibido en displayResults:", imcResult);
-    console.log("incomingElements recibido en displayResults:", incomingElements);
-   
-    const elements = incomingElements || {};
+// Función para mostrar los resultados en la UI
+function displayResults(user, recommendations, imcResult, containerElements = {}) {
 
-    // Obtener referencias a los elementos DOM, usando los elementos pasados en 'elements' si existen,
+    const targetResFullName = containerElements.resFullName || resFullName;
+    const targetResAge = containerElements.resAge || resAge;
+    const targetResWeight = containerElements.resWeight || resWeight;
+    const targetResHeight = containerElements.resHeight || resHeight;
+    const targetResGender = containerElements.resGender || resGender;
+    const targetResDUI = containerElements.resDUI || resDUI; 
+    const targetResAilments = containerElements.resAilments || resAilments;
+    const targetResIMC = containerElements.resIMC || resIMC;
+    const targetResIMCStatus = containerElements.resIMCStatus || resIMCStatus;
+    const targetResHabitsRoutines = containerElements.resHabitsRoutines || resHabitsRoutines;
+    const targetResDietPlan = containerElements.resDietPlan || resDietPlan;
 
-    const _resFullName = elements.resFullName || resFullName;
-    const _resDUI = elements.resDUI || resDUI;
-    const _resAge = elements.resAge || resAge;
-    const _resWeight = elements.resWeight || resWeight;
-    const _resHeight = elements.resHeight || resHeight;
-    const _resGender = elements.resGender || resGender;
-    const _resAilments = elements.resAilments || resAilments;
-    const _resIMC = elements.resIMC || resIMC;
-    const _resIMCStatus = elements.resIMCStatus || resIMCStatus;
-    const _resGoal = elements.resGoal || resGoal;
-    const _resHabitsRoutines = elements.resHabitsRoutines || resHabitsRoutines;
-    const _resDietPlan = elements.resDietPlan || resDietPlan;
+    if (targetResFullName) targetResFullName.textContent = user.fullName;
+    if (targetResAge) targetResAge.textContent = user.age;
+    if (targetResWeight) targetResWeight.textContent = user.weightKg.toFixed(2);
+    if (targetResHeight) targetResHeight.textContent = user.heightCm;
+    if (targetResGender) targetResGender.textContent = user.gender === 'male' ? 'Hombre' : 'Mujer';
 
-    console.log("DEBUG_DOM: Elemento _resFullName:", _resFullName);
-    console.log("DEBUG_DOM: Elemento _resDUI:", _resDUI);
-    console.log("DEBUG_DOM: Elemento _resAge:", _resAge);
-    console.log("DEBUG_DOM: Elemento _resWeight:", _resWeight);
-    console.log("DEBUG_DOM: Elemento _resHeight:", _resHeight);
-    console.log("DEBUG_DOM: Elemento _resGender:", _resGender);
-    console.log("DEBUG_DOM: Elemento _resAilments:", _resAilments);
-    console.log("DEBUG_DOM: Elemento _resIMC:", _resIMC);
-    console.log("DEBUG_DOM: Elemento _resIMCStatus:", _resIMCStatus);
-    console.log("DEBUG_DOM: Elemento _resGoal:", _resGoal);
-    console.log("DEBUG_DOM: Elemento _resHabitsRoutines:", _resHabitsRoutines);
-    console.log("DEBUG_DOM: Elemento _resDietPlan:", _resDietPlan);
-
-
-    // Poblar los datos del usuario
-    if (_resFullName && user.fullName) {
-        _resFullName.textContent = user.fullName;
-    }
-
-    // Lógica para mostrar DUI y añadir la etiqueta "Responsable" si es menor de edad
-    if (_resDUI && user.dui) {
-        let duiText = user.dui;
-        if (user.age < 18) {
-            duiText += " (Responsable)";
+    // Mostrar el DUI y el indicador "(Responsable)" si aplica
+    if (targetResDUI) {
+        targetResDUI.textContent = user.dui || 'N/A';
+        if (user.isResponsibleDUI) {
+            targetResDUI.textContent += ' (Responsable)';
         }
-        _resDUI.textContent = duiText;
-    } else if (_resDUI) {
-        _resDUI.textContent = 'No registrado';
     }
 
-    // Mostrar Edad, Peso y Estatura 
-    if (_resAge && user.age) {
-        _resAge.textContent = user.age;
-    }
-    if (_resWeight && user.weightKg) {
-        _resWeight.textContent = user.weightKg;
-    } else if (_resWeight) {
-        _resWeight.textContent = 'N/A';
-    }
-    if (_resHeight && user.heightCm) {
-        _resHeight.textContent = user.heightCm;
-    } else if (_resHeight) {
-        _resHeight.textContent = 'N/A';
+    if (targetResAilments) {
+        targetResAilments.textContent = user.ailments && user.ailments.length > 0
+            ? user.ailments.map(a => window.knowledgeBase.recommendations.ailments[a]?.name || a).join(', ')
+            : 'Ninguno';
     }
 
-    // Traducción del Género 
-    if (_resGender && user.gender) {
-        let translatedGender = user.gender;
-        switch (user.gender.toLowerCase()) {
-            case 'male':
-                translatedGender = 'Masculino';
-                break;
-            case 'female':
-                translatedGender = 'Femenino';
-                break;
-            case 'other':
-                translatedGender = 'Otro';
-                break;
-            default:
-                translatedGender = user.gender;
-                break;
-        }
-        _resGender.textContent = translatedGender;
-    } else if (_resGender) {
-        _resGender.textContent = 'N/A';
+    // Muestra del IMC
+    if (targetResIMC) targetResIMC.textContent = imcResult.imc.toFixed(2);
+    if (targetResIMCStatus) targetResIMCStatus.textContent = imcResult.status;
+
+    // Mostrar hábitos y rutinas
+    if (targetResHabitsRoutines) {
+        targetResHabitsRoutines.innerHTML = recommendations.habitsRoutines.map(rec => `<li>${rec}</li>`).join('');
     }
 
+    if (targetResDietPlan) {
+        targetResDietPlan.innerHTML = ''; 
+        if (recommendations.dietPlan && recommendations.dietPlan.length > 0) {
+            recommendations.dietPlan.forEach(plan => {
+                const planDiv = document.createElement('div');
+                planDiv.className = 'card mb-3';
+                let mealsHtml = '';
 
-    // Mostrar Padecimientos 
-    if (_resAilments) {
-        console.log("DEBUG_PADECIMIENTOS: user.ailments recibido:", user.ailments);
-        if (Array.isArray(user.ailments) && user.ailments.length > 0 && !user.ailments.includes('none')) {
-            const translatedAilments = user.ailments.map(ailmentKey => {
-              
-                if (window.knowledgeBase && window.knowledgeBase.recommendations &&
-                    window.knowledgeBase.recommendations.ailments &&
-                    window.knowledgeBase.recommendations.ailments[ailmentKey]) { 
-                    console.log(`DEBUG_PADECIMIENTOS: Traduciendo "${ailmentKey}" a "${window.knowledgeBase.recommendations.ailments[ailmentKey].name}"`);
-                    return window.knowledgeBase.recommendations.ailments[ailmentKey].name;
-                }
-                console.warn(`DEBUG_PADECIMIENTOS: No se encontró traducción en knowledgeBase para la clave "${ailmentKey}". Usando original.`);
-                return ailmentKey;
-            });
-            _resAilments.textContent = translatedAilments.join(', ');
-        } else {
-            _resAilments.textContent = 'Ninguno';
-            console.log("DEBUG_PADECIMIENTOS: No hay padecimientos seleccionados o el array está vacío/incluye 'none'.");
-        }
-    } else {
-        console.error("DEBUG_PADECIMIENTOS: Elemento DOM _resAilments no encontrado. Asegúrate de que el ID 'resAilments' exista en tu HTML.");
-    }
+                let actualMealPlanStrings = [];
+                let planTitle = 'Plan de Dieta'; 
 
+                // Mapeo de nombres de comida en inglés a español
+                const mealNameMap = {
+                    'breakfast': 'Desayuno',
+                    'midMorning': 'Media Mañana',
+                    'lunch': 'Almuerzo',
+                    'afternoon': 'Merienda',
+                    'dinner': 'Cena'
+                };
 
-    // Poblar los resultados de IMC
-    if (_resIMC && imcResult && imcResult.imc) {
-        _resIMC.textContent = imcResult.imc;
-    }
-    if (_resIMCStatus && imcResult && imcResult.status) {
-        _resIMCStatus.textContent = imcResult.status;
-    }
+                // Orden de comidas.
+                const mealOrder = ['breakfast', 'midMorning', 'lunch', 'afternoon', 'dinner'];
 
-    // Mostrar el objetivo
-    if (_resGoal && user.selectedGoalId && window.knowledgeBase.goals[user.selectedGoalId]) {
-        _resGoal.textContent = window.knowledgeBase.goals[user.selectedGoalId].name;
-    }
-
-    // Mostrar Hábitos y Rutinas
-    if (_resHabitsRoutines && recommendations.habitsRoutines) {
-        _resHabitsRoutines.innerHTML = '';
-        if (Array.isArray(recommendations.habitsRoutines)) {
-            recommendations.habitsRoutines.forEach(item => {
-                const listItem = document.createElement('li');
-                listItem.textContent = item;
-                _resHabitsRoutines.appendChild(listItem);
-            });
-        } else {
-            _resHabitsRoutines.textContent = recommendations.habitsRoutines;
-        }
-    } else if (_resHabitsRoutines) {
-        _resHabitsRoutines.innerHTML = '<li>No hay recomendaciones de hábitos disponibles.</li>';
-    }
-
-
-    // Mostrar Plan de Dieta Semanal 
-    if (_resDietPlan) {
-        console.log("DEBUG_DIET: Elemento _resDietPlan existe:", _resDietPlan);
-        if (recommendations.dietPlan && Array.isArray(recommendations.dietPlan) && recommendations.dietPlan.length > 0) {
-            _resDietPlan.innerHTML = ''; // Limpiar cualquier contenido previo
-            console.log("DEBUG_DIET: recommendations.dietPlan es un array no vacío. Longitud:", recommendations.dietPlan.length);
-
-            // Definir el orden de las comidas y sus traducciones
-            const mealOrder = ['breakfast', 'midMorning', 'lunch', 'afternoon', 'dinner']; 
-            const mealTranslations = {
-                breakfast: 'Desayuno',
-                midMorning: 'Media Mañana',
-                lunch: 'Almuerzo',
-                afternoon: 'Media Tarde', 
-                dinner: 'Cena'
-            };
-
-            recommendations.dietPlan.forEach((dietObject, index) => {
-              
-                if (typeof dietObject === 'object' && dietObject !== null) {
-                    console.log(`DEBUG_DIET: Procesando dietObject[${index}]:`, dietObject);
-
-                    // Título del plan de dieta 
-                    const planTitle = dietObject.title || `Plan de Dieta ${index + 1}`;
-                    const titleItem = document.createElement('li');
-                    titleItem.classList.add('list-group-item', 'fw-bold', 'mt-2', 'bg-light');
-                    titleItem.textContent = planTitle;
-                    _resDietPlan.appendChild(titleItem);
-                    console.log(`DEBUG_DIET: Añadido título del plan: "${planTitle}"`);
-
-                    // Resumen de restricciones 
-                    if (dietObject.restriction_summary) {
-                        const restrictionSummaryItem = document.createElement('li');
-                        restrictionSummaryItem.classList.add('list-group-item', 'fst-italic', 'text-muted', 'small');
-                        restrictionSummaryItem.textContent = `Resumen: ${dietObject.restriction_summary}`;
-                        _resDietPlan.appendChild(restrictionSummaryItem);
-                        console.log(`DEBUG_DIET: Añadido resumen de restricciones: "${dietObject.restriction_summary}"`);
+                if (typeof plan === 'object' && plan !== null) {
+                    if (plan.title) {
+                        planTitle = plan.title;
                     }
 
+                    if (plan.plan && Array.isArray(plan.plan)) {
+                        actualMealPlanStrings = plan.plan;
+                    } else if (typeof plan.diet_restriction === 'string') {
+                        actualMealPlanStrings = [plan.diet_restriction];
+                        planTitle = plan.title || 'Consideración Dietética';
+                    } else {
+                        
+                        let mealsAsObject = {};
+                        let isDetailedMealPlan = false;
 
-                    // Iteración de las ccomidas en el orden definido
-                    mealOrder.forEach(mealKey => {
-                        if (dietObject[mealKey]) { 
-                            const mealItem = document.createElement('li');
-                            mealItem.classList.add('list-group-item', 'ms-3');
-                           
-                            mealItem.textContent = `${mealTranslations[mealKey] || mealKey}: ${dietObject[mealKey]}`;
-                            _resDietPlan.appendChild(mealItem);
-                            console.log(`DEBUG_DIET: Añadido elemento de comida [${index}][${mealKey}]: "${dietObject[mealKey]}"`);
-                        } else {
-                            console.log(`DEBUG_DIET: La comida '${mealKey}' no está presente en dietObject[${index}].`);
-                        }
-                    });
+                        mealOrder.forEach(key => {
+                            if (plan[key]) {
+                                mealsAsObject[key] = plan[key];
+                                isDetailedMealPlan = true;
+                            }
+                        });
 
-                   
-                    if (recommendations.dietPlan.length > 1 && index < recommendations.dietPlan.length - 1) {
-                        const separator = document.createElement('hr');
-                        _resDietPlan.appendChild(separator);
-                        console.log("DEBUG_DIET: Añadido separador entre planes.");
-                    }
-
-                } else {
+                        if (isDetailedMealPlan) {
                     
-                    const listItem = document.createElement('li');
-                    listItem.classList.add('list-group-item', 'text-danger');
-                    listItem.textContent = `ERROR: Formato de plan de dieta inesperado para el índice ${index}. Objeto: ${JSON.stringify(dietObject)}.`;
-                    _resDietPlan.appendChild(listItem);
-                    console.error(`DEBUG_DIET: ${listItem.textContent}`);
+                            mealOrder.forEach(key => {
+                                if (mealsAsObject[key]) {
+                                    
+                                    const label = mealNameMap[key] || (key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'));
+                                    actualMealPlanStrings.push(`${label}: ${mealsAsObject[key]}`);
+                                }
+                            });
+                        } else if (Array.isArray(plan)) {                           
+                             actualMealPlanStrings = plan;
+                        } else {
+                            actualMealPlanStrings = [`No se pudo generar un plan de dieta específico o el formato del objeto es incorrecto: ${JSON.stringify(plan)}`];
+                            planTitle = 'Error en Plan de Dieta';
+                        }
+                    }
+                } else if (typeof plan === 'string') {
+                    actualMealPlanStrings = [plan];
+                    planTitle = 'Consideración Dietética';
+                } else {
+                    actualMealPlanStrings = ["No se pudo generar un plan de dieta específico o el formato es incorrecto."];
+                    planTitle = 'Error en Plan de Dieta';
                 }
+
+                if (actualMealPlanStrings.length > 0) {
+                    actualMealPlanStrings.forEach(mealString => {
+                        const parts = mealString.split(':');
+                        const mealLabel = parts[0] ? parts[0].trim() : 'Detalle'; 
+                        const mealValue = parts.slice(1).join(':').trim() || mealString; 
+                        mealsHtml += `<p><strong>${mealLabel}:</strong> ${mealValue}</p>`;
+                    });
+                } else {
+                    mealsHtml += `<p>No se encontraron detalles para este plan de dieta.</p>`;
+                }
+
+                planDiv.innerHTML = `
+                    <div class="card-header bg-info text-white">
+                        ${planTitle}
+                    </div>
+                    <div class="card-body">
+                        ${mealsHtml}
+                    </div>
+                `;
+                targetResDietPlan.appendChild(planDiv);
             });
         } else {
-            // Mensaje si no hay ningún plan de dieta en recommendations o si el array está vacío
-            _resDietPlan.innerHTML = '<li class="list-group-item">No se pudo generar un plan de dieta específico o no hay datos de dietas.</li>';
-            console.log("DEBUG_DIET: recommendations.dietPlan es nulo, no es un array o está vacío.");
+            targetResDietPlan.innerHTML = '<p>No se encontraron planes de dieta específicos. Intenta ajustar tus selecciones.</p>';
         }
-    } else {
-        console.error("DEBUG_DIET: Elemento DOM _resDietPlan no encontrado. Asegúrate de que el ID 'resDietPlan' exista en tu HTML.");
     }
-
-
-    
-    if (!incomingElements && resultsDisplaySection) {
-        resultsDisplaySection.style.display = 'block';
-        resultsDisplaySection.classList.add('animate__fadeIn');
-        console.log("DEBUG_DISPLAY: Mostrando resultsDisplaySection.");
-    }
-    console.log(">>> displayResults FIN <<<");
 }
 
-// Función para guardar PDF con estilos
-savePdfBtn.addEventListener('click', () => {
+// Generar PDF para un usuario dado sus datos
+function generatePdfForUser(user, recommendations, imcResult) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
     // Estilos generales
     doc.setFont('helvetica');
-    doc.setTextColor(33, 37, 41); // Color oscuro para el texto principal
+    doc.setTextColor(33, 37, 41); 
 
     let yPos = 20;
     const margin = 15;
     const pageWidth = doc.internal.pageSize.getWidth();
 
     // Título Principal
-    doc.setFontSize(22);
-    doc.setTextColor(0, 123, 255); 
+    doc.setFontSize(24); 
+    doc.setTextColor(0, 123, 255);
     doc.text("Recomendaciones Nutricionales NutriCoach", pageWidth / 2, yPos, { align: 'center' });
-    yPos += 10;
+    yPos += 12; 
 
     // Línea separadora
     doc.setDrawColor(0, 123, 255);
     doc.line(margin, yPos, pageWidth - margin, yPos);
-    yPos += 10;
-    doc.setTextColor(33, 37, 41);
+    yPos += 12; 
+    doc.setTextColor(33, 37, 41); 
 
     // Función auxiliar para añadir texto con manejo de línea
     const addText = (label, value) => {
-        if (yPos > 270) { 
+        if (yPos > 270) { // Si casi no queda espacio, se agrega una nueva página
             doc.addPage();
             yPos = 20;
-            doc.setFontSize(10);
         }
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
         doc.text(`${label}:`, margin, yPos);
         doc.setFont('helvetica', 'normal');
-        const valueText = doc.splitTextToSize(value, pageWidth - 2 * margin - doc.getTextWidth(`${label}: `));
-        doc.text(valueText, margin + doc.getTextWidth(`${label}: `), yPos);
-        yPos += (valueText.length * 7) + 3; 
+        const valueText = doc.splitTextToSize(value, pageWidth - 2 * margin - doc.getTextWidth(`${label}: `) - 5); 
+        doc.text(valueText, margin + doc.getTextWidth(`${label}: `) + 2, yPos); 
+        yPos += (valueText.length * 7) + 4; 
     };
 
     // Sección de Datos del Usuario
-    doc.setFontSize(16);
+    doc.setFontSize(18); 
     doc.setTextColor(40, 167, 69); 
     doc.text("Datos del Usuario:", margin, yPos);
-    yPos += 7;
+    yPos += 8; 
     doc.setTextColor(33, 37, 41); 
 
-    addText("Nombre", resFullName.textContent);
-    addText("Edad", resAge.textContent + " años");
-    addText("Peso", resWeight.textContent + " kg");
-    addText("Estatura", resHeight.textContent + " cm");
-    addText("Género", resGender.textContent);
-    addText("Padecimientos", resAilments.textContent);
-    addText("IMC", resIMC.textContent + " (" + resIMCStatus.textContent + ")");
+    addText("Nombre", user.fullName || 'N/A');
+    addText("Edad", (user.age || 'N/A') + " años");
+    addText("Peso", (user.weightKg ? user.weightKg.toFixed(2) : 'N/A') + " kg");
+    addText("Estatura", (user.heightCm || 'N/A') + " cm");
+    addText("Género", user.gender === 'male' ? 'Hombre' : (user.gender === 'female' ? 'Mujer' : 'N/A'));
+    addText("DUI", (user.dui || 'N/A') + (user.isResponsibleDUI ? ' (Responsable)' : ''));
+    const ailmentsText = user.ailments && user.ailments.length > 0
+        ? user.ailments.map(a => window.knowledgeBase.recommendations.ailments[a]?.name || a).join(', ')
+        : 'Ninguno';
+    addText("Padecimientos", ailmentsText);
+    addText("IMC", (imcResult.imc ? imcResult.imc.toFixed(2) : 'N/A') + " (" + (imcResult.status || 'N/A') + ")");
 
-    yPos += 10;
+    yPos += 15; 
 
     // Sección de Indicaciones de Hábitos y Rutinas
-    doc.setFontSize(16);
+    doc.setFontSize(18); 
     doc.setTextColor(255, 193, 7); 
     doc.text("Indicaciones de Hábitos y Rutinas:", margin, yPos);
-    yPos += 7;
+    yPos += 8; // Aumentado el espacio
     doc.setTextColor(33, 37, 41);
 
-    const habitsRoutinesListItems = Array.from(resHabitsRoutines.querySelectorAll('li')).map(li => `- ${li.textContent}`);
-    const habitsRoutinesText = habitsRoutinesListItems.join('\n');
+    doc.setFontSize(11); 
+    const habitsRoutinesText = recommendations.habitsRoutines.map(rec => `- ${rec}`).join('\n');
     const splitHabits = doc.splitTextToSize(habitsRoutinesText, pageWidth - 2 * margin);
-    doc.setFontSize(11);
     doc.text(splitHabits, margin, yPos);
-    yPos += (splitHabits.length * 6) + 10;
+    yPos += (splitHabits.length * 6) + 15; 
 
     // Sección de Sugerencias de Dietas Semanales
-    doc.setFontSize(16);
+    doc.setFontSize(18); 
     doc.setTextColor(23, 162, 184); 
     doc.text("Sugerencias de Dietas Semanales:", margin, yPos);
-    yPos += 7;
+    yPos += 8; 
     doc.setTextColor(33, 37, 41);
 
-    const dietPlanCards = resDietPlan.querySelectorAll('.card');
-    if (dietPlanCards.length === 0) {
+    if (recommendations.dietPlan && recommendations.dietPlan.length > 0) {
+        recommendations.dietPlan.forEach((plan, index) => {
+            if (yPos > 250) { // Nueva página si no hay espacio suficiente para la siguiente tarjeta
+                doc.addPage();
+                yPos = 20;
+            }
+
+            let actualMealPlanStrings = [];
+            let planTitle = `Plan de Dieta ${index + 1}`; 
+
+            // Mapeo de nombres de comida en inglés a español para PDF
+            const mealNameMap = {
+                'breakfast': 'Desayuno',
+                'midMorning': 'Media Mañana',
+                'lunch': 'Almuerzo',
+                'afternoon': 'Merienda',
+                'dinner': 'Cena'
+            };
+            
+            const mealOrder = ['breakfast', 'midMorning', 'lunch', 'afternoon', 'dinner'];
+
+            if (typeof plan === 'object' && plan !== null) {
+                if (plan.title) {
+                    planTitle = plan.title;
+                }
+
+                let mealsAsObject = {};
+
+                if (plan.plan && Array.isArray(plan.plan)) {
+                    actualMealPlanStrings = plan.plan;
+                } else if (typeof plan.diet_restriction === 'string') {
+                    actualMealPlanStrings = [plan.diet_restriction];
+                    planTitle = plan.title || 'Consideración Dietética';
+                } else {
+                    let isDetailedMealPlan = false;
+                    mealOrder.forEach(key => {
+                        if (plan[key]) {
+                            mealsAsObject[key] = plan[key];
+                            isDetailedMealPlan = true;
+                        }
+                    });
+
+                    if (isDetailedMealPlan) {
+                        mealOrder.forEach(key => {
+                            if (mealsAsObject[key]) {
+                                const label = mealNameMap[key] || (key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'));
+                                actualMealPlanStrings.push(`${label}: ${mealsAsObject[key]}`);
+                            }
+                        });
+                    } else if (Array.isArray(plan)) {
+                        actualMealPlanStrings = plan;
+                    } else {
+                        actualMealPlanStrings = [`No se pudo generar un plan de dieta específico o el formato del objeto es incorrecto: ${JSON.stringify(plan)}`];
+                        planTitle = 'Error en Plan de Dieta';
+                    }
+                }
+            } else if (typeof plan === 'string') {
+                actualMealPlanStrings = [plan];
+                planTitle = 'Consideración Dietética';
+            } else {
+                actualMealPlanStrings = ["No se pudo generar un plan de dieta específico o el formato es incorrecto."];
+                planTitle = 'Error en Plan de Dieta';
+            }
+
+            doc.setFontSize(14); 
+            doc.setFont('helvetica', 'bold');
+            doc.text(planTitle, margin, yPos);
+            yPos += 8; 
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(11); 
+
+            if (actualMealPlanStrings.length > 0) {
+                actualMealPlanStrings.forEach(mealString => {
+                    const parts = mealString.split(':');
+                    const mealLabel = parts[0] ? parts[0].trim() : 'Detalle';
+                    const mealValue = parts.slice(1).join(':').trim() || mealString;
+                    addText(mealLabel, mealValue);
+                });
+            } else {
+                addText("Detalle del plan", "No se encontraron detalles para este plan de dieta.");
+            }
+
+            yPos += 10; 
+        });
+    } else {
         doc.setFontSize(11);
         doc.text("No se encontraron planes de dieta específicos. Intenta ajustar tus selecciones.", margin, yPos);
         yPos += 10;
-    } else {
-        dietPlanCards.forEach(card => {
-            if (yPos > 250) { 
-                doc.addPage();
-                yPos = 20;
-                doc.setFontSize(11);
-            }
-
-            const title = card.querySelector('.card-header').innerText;
-            doc.setFontSize(14);
-            doc.setFont('helvetica', 'bold');
-            doc.text(title, margin, yPos);
-            yPos += 7;
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(10);
-
-            const meals = ['Desayuno', 'Media Mañana', 'Almuerzo', 'Merienda', 'Cena'];
-            meals.forEach((meal, index) => {
-                const pElement = card.querySelector(`p:nth-child(${index + 1})`);
-                const mealText = pElement ? pElement.innerText : `${meal}: No especificado`;
-                const [mealLabel, mealValue] = mealText.split(':');
-                if (mealValue) {
-                    addText(mealLabel.trim(), mealValue.trim());
-                } else {
-                     addText(mealLabel.trim(), 'No especificado');
-                }
-            });
-            yPos += 5; 
-        });
     }
 
     // Pie de página 
-    doc.setFontSize(8);
+    doc.setFontSize(9); 
     doc.setTextColor(108, 117, 125);
     doc.text(`Generado por NutriCoach - ${new Date().toLocaleDateString()}`, margin, doc.internal.pageSize.getHeight() - 10);
 
-    doc.save("NutriCoach_Recomendaciones.pdf");
+    // En lugar de doc.save(), devuelve el Blob URL
+    return doc.output('bloburl');
+}
+
+
+// Función para guardar PDF con estilos 
+savePdfBtn.addEventListener('click', () => {
+    if (Object.keys(userData).length === 0 || Object.keys(currentRecommendations).length === 0 || Object.keys(currentIMCResult).length === 0) {
+        showCustomAlert("No hay datos de usuario o recomendaciones para generar el PDF. Por favor, completa el proceso de consulta.");
+        return;
+    }
+    const pdfUrl = generatePdfForUser(userData, currentRecommendations, currentIMCResult);
+    window.open(pdfUrl, '_blank'); 
 });
 
-
-// Botón para volver a revisar opciones
 reviewOptionsBtn.addEventListener('click', () => {
-    // Limpiar campos o resetear estados si es necesario
+
     userDataForm.reset();
     dynamicQuestionsForm.reset();
     document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
@@ -1010,27 +986,28 @@ reviewOptionsBtn.addEventListener('click', () => {
     currentRecommendations = {};
     currentIMCResult = {};
 
-    // DESMARCAR todas las opciones en el select de padecimientos
     Array.from(ailmentsSelect.options).forEach(option => {
         option.selected = false;
     });
-
+   
     const noneOption = Array.from(ailmentsSelect.options).find(opt => opt.value === 'none');
     if (noneOption) {
         noneOption.selected = true;
     }
 
+    // Limpiar clases de validación del DUI
+    duiInput.classList.remove('is-invalid', 'is-valid');
+    duiFeedback.textContent = '';
 
     showSection(initialDataFormSection); 
 });
 
 
-// Lógica de Administración
+// --- Lógica de Administración ---
 
 // Listener para el icono de Admin
 adminIconLink.addEventListener('click', (e) => {
     e.preventDefault();
-    // Verificar si el usuario ya está logueado como admin
     if (auth.currentUser && auth.currentUser.email === 'admin@nutricoach.com') {
         showAdminSection(); 
     } else {
@@ -1055,12 +1032,10 @@ adminLoginBtn.addEventListener('click', async () => {
             console.log('Admin logueado correctamente.');
             adminLoginForm.style.display = 'none';
             adminContent.style.display = 'block';
-            loadUsersTable(); 
-          
+            loadUsersTable();
             const firstTab = new bootstrap.Tab(usersTabBtn);
             firstTab.show();
         } else {
-            
             adminLoginMessage.textContent = 'Credenciales de administrador inválidas.';
             auth.signOut(); 
         }
@@ -1083,7 +1058,7 @@ adminLogoutBtn.addEventListener('click', async () => {
         showSection(initialDataFormSection); 
     } catch (error) {
         console.error('Error al cerrar sesión:', error);
-        alert('Hubo un error al cerrar sesión. Por favor, inténtalo de nuevo.');
+        showCustomAlert('Hubo un error al cerrar sesión. Por favor, inténtalo de nuevo.');
     }
 });
 
@@ -1107,15 +1082,16 @@ usersTabBtn.addEventListener('shown.bs.tab', function (e) {
     }
 });
 
+
 // Función para cargar la tabla de usuarios
 async function loadUsersTable() {
-    usersTableBody.innerHTML = '<tr><td colspan="8" class="text-center">Cargando usuarios...</td></tr>';
+    usersTableBody.innerHTML = '<tr><td colspan="9" class="text-center">Cargando usuarios...</td></tr>'; 
     try {
         const querySnapshot = await db.collection('users').orderBy('timestamp', 'desc').get();
         usersTableBody.innerHTML = ''; 
 
         if (querySnapshot.empty) {
-            usersTableBody.innerHTML = '<tr><td colspan="8" class="text-center">No hay usuarios registrados.</td></tr>';
+            usersTableBody.innerHTML = '<tr><td colspan="9" class="text-center">No hay usuarios registrados.</td></tr>'; 
             return;
         }
 
@@ -1124,17 +1100,15 @@ async function loadUsersTable() {
             const userId = doc.id;
             const row = usersTableBody.insertRow();
 
-            // Padecimientos a mostrar 
             const ailmentsText = user.ailments && user.ailments.length > 0
                 ? user.ailments.map(a => window.knowledgeBase.recommendations.ailments[a]?.name || a).join(', ')
                 : 'Ninguno';
 
-            // Nombre del objetivo 
             const goalName = window.knowledgeBase.goals.find(g => g.id === user.selectedGoalId)?.name || user.selectedGoalId || 'N/A';
 
             row.innerHTML = `
                 <td>${user.fullName || 'N/A'}</td>
-                <td>${user.dui || 'N/A'}</td>
+                <td>${user.dui || 'N/A'} ${user.isResponsibleDUI ? ' (Responsable)' : ''}</td> <!-- Mostrar DUI -->
                 <td>${user.age || 'N/A'}</td>
                 <td>${user.weightKg ? user.weightKg.toFixed(1) + ' kg' : 'N/A'}</td>
                 <td>${user.heightCm ? user.heightCm.toFixed(1) + ' cm' : 'N/A'}</td>
@@ -1156,7 +1130,6 @@ async function loadUsersTable() {
             `;
         });
 
-     
         document.querySelectorAll('.edit-user-btn').forEach(button => {
             button.addEventListener('click', (e) => editUser(e.currentTarget.dataset.id));
         });
@@ -1167,66 +1140,64 @@ async function loadUsersTable() {
         document.querySelectorAll('.view-recommendations-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault(); 
-                viewUserRecommendations(e.currentTarget.dataset.id);
+                viewUserRecommendations(e.currentTarget.dataset.id, true); 
             });
         });
 
     } catch (error) {
         console.error("Error al cargar usuarios:", error);
-        usersTableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error al cargar usuarios.</td></tr>';
+        usersTableBody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error al cargar usuarios.</td></tr>'; 
     }
 }
 
 // Función para abrir el modal de edición de usuario
 async function editUser(userId) {
     try {
-        const userDoc = await db.collection('users').doc(userId).get();
-        if (!userDoc.exists) {
-            alert('Usuario no encontrado.');
+        const doc = await db.collection('users').doc(userId).get();
+        if (!doc.exists) {
+            showCustomAlert('Usuario no encontrado.');
             return;
         }
-        const user = userDoc.data();
-        currentEditingUserId = userId; // Guarda el ID del usuario que se está editando
+        const user = doc.data();
 
- 
-        document.getElementById('editFullName').value = user.fullName;
-        document.getElementById('editAge').value = user.age;
-        document.getElementById('editWeight').value = user.weightKg;
-        document.getElementById('editHeight').value = user.heightCm;
-        document.getElementById('editGender').value = user.gender;
+        editUserIdInput.value = userId;
+        editFullNameInput.value = user.fullName || '';
+        editAgeInput.value = user.age || ''; 
+        editWeightInput.value = user.weightKg || '';
+        editHeightInput.value = user.heightCm || '';
+        editGenderSelect.value = user.gender || 'male';
 
-       
-        const editAilmentsSelect = document.getElementById('editAilments');
-     
-        for (let i = 0; i < editAilmentsSelect.options.length; i++) {
-            editAilmentsSelect.options[i].selected = false;
+        editDUIInput.value = user.dui || '';
+        editDUIInput.classList.remove('is-invalid', 'is-valid'); 
+        editDuiFeedback.textContent = '';
+
+        // Ocultar/mostrar el campo DUI según la edad
+        if (user.age >= 18) {
+            editDuiContainer.style.display = 'none'; // Ocultar el campo DUI
+            editDUIInput.removeAttribute('required'); // No requerido si está oculto
+        } else {
+            editDuiContainer.style.display = 'block'; // Mostrar el campo DUI
+            editDUIInput.setAttribute('required', 'true'); // Requerido si está visible
         }
-        if (user.ailments && Array.isArray(user.ailments)) {
+
+        // Padecimientos: deseleccionar todos y luego seleccionar los correctos
+        Array.from(editAilmentsSelect.options).forEach(option => {
+            option.selected = false;
+        });
+        if (user.ailments && user.ailments.length > 0) {
             user.ailments.forEach(ailment => {
                 const option = Array.from(editAilmentsSelect.options).find(opt => opt.value === ailment);
-                if (option) {
-                    option.selected = true;
-                }
+                if (option) option.selected = true;
             });
         }
-
-        // Lógica para el DUI (Denuevo xd)
-        const editDUIInput = document.getElementById('editDUI');
-        editDUIInput.value = user.dui || ''; 
-        
-        // El DUI se deshabilita si el usuario es mayor de edad (>= 18)
-        // o si ya tenía un DUI registrado y ha alcanzado la mayoría de edad.
-        // Si es menor de edad, el DUI del responsable sí es editable.
-        if (user.age >= 18) {
-            editDUIInput.setAttribute('disabled', 'true');
-            editDUIInput.classList.add('bg-light');
-            console.log(`DEBUG_EDIT: DUI (${user.dui}) deshabilitado para usuario mayor de edad (${user.age} años).`);
-        } else {
-            editDUIInput.removeAttribute('disabled');
-            editDUIInput.classList.remove('bg-light');
-            console.log(`DEBUG_EDIT: DUI (${user.dui}) habilitado para usuario menor de edad (${user.age} años).`);
+       
+        if (!user.ailments || user.ailments.length === 0 || (user.ailments.length === 1 && user.ailments[0] === 'none')) {
+            const noneOption = Array.from(editAilmentsSelect.options).find(opt => opt.value === 'none');
+            if (noneOption) noneOption.selected = true; 
         }
 
+
+        // Poblar opciones de objetivo en el modal
         editGoalSelect.innerHTML = '';
         window.knowledgeBase.goals.forEach(goal => {
             const opt = document.createElement('option');
@@ -1234,36 +1205,25 @@ async function editUser(userId) {
             opt.textContent = goal.name;
             editGoalSelect.appendChild(opt);
         });
-        
+
         editGoalSelect.value = user.selectedGoalId || '';
-
-        
+     
         populateDynamicQuestions(user.selectedGoalId, editDynamicQuestionsContainer, user.dynamicAnswers || {});
-
-        // Listener para cambiar preguntas dinámicas si cambia el objetivo en el modal
 
         const oldEditGoalSelect = editGoalSelect;
         const newEditGoalSelect = oldEditGoalSelect.cloneNode(true);
         oldEditGoalSelect.parentNode.replaceChild(newEditGoalSelect, oldEditGoalSelect);
-
-        // Reasignaciónla referencia global a la nueva instancia clonada
+      
         editGoalSelect = newEditGoalSelect;
 
         editGoalSelect.addEventListener('change', () => {
-          
             populateDynamicQuestions(editGoalSelect.value, editDynamicQuestionsContainer, {});
         });
-
         editUserModalInstance.show();
 
-
-
-        editUserModalInstance.show(); 
-        console.log('Cargando usuario para edición:', user);
-
     } catch (error) {
-        console.error('Error al cargar datos del usuario para edición:', error);
-        alert('Error al cargar datos del usuario para edición. ' + error.message);
+        console.error("Error al cargar datos del usuario para edición:", error);
+        showCustomAlert("Error al cargar los datos del usuario. " + error.message);
     }
 }
 
@@ -1271,100 +1231,102 @@ async function editUser(userId) {
 editUserForm.addEventListener('submit', async (e) => {
     e.preventDefault(); 
 
-    // Validación del formulario de edición antes de intentar guardar
-    if (!editUserForm.checkValidity()) {
+    let formIsValid = editUserForm.checkValidity();
+    let duiToSave = editDUIInput.value;
+    let originalUserDUI = null; 
+    let isResponsibleDUI = false; 
+
+    try {
+        // Obtener el usuario original para comparar el DUI
+        const originalDoc = await db.collection('users').doc(editUserIdInput.value).get();
+        if (!originalDoc.exists) {
+            showCustomAlert('Usuario original no encontrado para edición.');
+            formIsValid = false;
+            return; // Salir si no se encuentra el usuario original
+        }
+        originalUserDUI = originalDoc.data().dui;
+
+        const newAge = parseInt(editAgeInput.value); 
+
+        // Validar el formato del DUI si el campo está visible
+        if (editDuiContainer.style.display !== 'none') {
+            const duiIsValid = validateEditDUI(editDUIInput, editDuiContainer);
+            if (!duiIsValid) {
+                formIsValid = false;
+            }
+        } else {
+            // Si el campo DUI está oculto (usuario >= 18), se usa el DUI original del usuario
+            duiToSave = originalUserDUI;
+        }
+
+        if (newAge >= 18) {
+            const usersRef = db.collection('users');
+            const querySnapshot = await usersRef
+                .where('dui', '==', duiToSave)
+                .get();
+
+            if (!querySnapshot.empty) {
+                const otherUsersWithSameDUI = querySnapshot.docs.filter(doc => doc.id !== editUserIdInput.value);
+                if (otherUsersWithSameDUI.length > 0) {
+                    editDUIInput.classList.add('is-invalid');
+                    editDuiFeedback.textContent = 'Este DUI ya está registrado para otro usuario mayor de edad y este usuario ahora es mayor de edad. Por favor, cambia el DUI.';
+                    formIsValid = false;
+                }
+            }
+            isResponsibleDUI = false; 
+        } else { 
+            const usersRef = db.collection('users');
+            const querySnapshot = await usersRef.where('dui', '==', duiToSave).get();
+
+            if (!querySnapshot.empty) {
+                const isMyDUI = querySnapshot.docs.some(doc => doc.id === editUserIdInput.value);
+                if (!isMyDUI) {
+                    isResponsibleDUI = true; 
+                } else {
+                    isResponsibleDUI = false; 
+                }
+            } else {
+                isResponsibleDUI = false; 
+            }
+        }
+
+    } catch (error) {
+        console.error("Error al verificar unicidad del DUI durante la edición:", error);
+        showCustomAlert("Error al verificar la unicidad del DUI. Por favor, inténtelo de nuevo.");
+        formIsValid = false;
+    }
+
+    if (!formIsValid) {
         e.stopPropagation(); 
         editUserForm.classList.add('was-validated'); 
         return; 
     }
 
-     const originalDUI = currentEditedUserDui; 
-
     const userId = editUserIdInput.value;
-    const updatedFullName = editFullNameInput.value.trim(); 
-    const updatedDUI = editDUIInput.value.trim(); 
-    const updatedAge = parseInt(editAgeInput.value); 
-
-// 1. Validación del formato del DUI para edición
-const duiRegex = /^\d{8}-\d{1}$/;
-if (!duiRegex.test(updatedDUI)) {
-    editDUIInput.classList.add('is-invalid');
-    const feedbackElement = editDUIInput.nextElementSibling;
-    if (feedbackElement && feedbackElement.classList.contains('invalid-feedback')) {
-        feedbackElement.textContent = 'El formato del DUI debe ser 01234567-8';
-    } else {
-        alert('El formato del DUI debe ser 01234567-8');
-    }
-    return; 
-} else {
-    editDUIInput.classList.remove('is-invalid');
-    const feedbackElement = editDUIInput.nextElementSibling;
-    if (feedbackElement && feedbackElement.classList.contains('invalid-feedback')) {
-        feedbackElement.textContent = ''; 
-    }
-}
-
-// Lógica de verificación para DUI duplicado
- try {
-        const usersRef = db.collection('users');
-        const querySnapshot = await usersRef.where('dui', '==', updatedDUI).get();
-
-        let isDuplicateButAllowed = false;
-
-        if (!querySnapshot.empty) {
-           
-            for (const doc of querySnapshot.docs) {
-            
-                if (doc.id === originalDUI) {
-                    isDuplicateButAllowed = true; // El DUI es el mismo, pero pertenece al usuario actual, así que es válido.
-                    break; 
-                }
-
-                const existingUser = doc.data();
-                const existingUserAge = parseInt(existingUser.age);
-
-                // Caso 1: El usuario existente es un adulto (responsable) y el usuario que se edita es un menor con el mismo DUI.
-                if (existingUserAge >= 18 && updatedAge < 18) {
-                    isDuplicateButAllowed = true;
-                    break;
-                }
-                // Caso 2: El usuario existente es un menor y el usuario que se edita es un adulto (responsable) con el mismo DUI.
-                else if (existingUserAge < 18 && updatedAge >= 18) {
-                    isDuplicateButAllowed = true;
-                    break;
-                }
-            }
-        }
-
-    } catch (error) {
-        console.error("Error al verificar DUI duplicado en edición:", error);
-        alert("Ocurrió un error al verificar el DUI. Por favor, intenta de nuevo.");
-        return;
-    }
-
-
-    // Recolectar datos del formulario para la actualización
     const updatedUserData = {
-        fullName: updatedFullName, 
-        dui: updatedDUI,          
-        age: updatedAge,           
-        weight: parseFloat(editWeightInput.value), 
-        height: parseFloat(editHeightInput.value), 
+        fullName: editFullNameInput.value.trim(),
+        age: parseInt(editAgeInput.value),
+        weightKg: parseFloat(editWeightInput.value),
+        heightCm: parseFloat(editHeightInput.value),
         gender: editGenderSelect.value,
-       
+        dui: duiToSave, 
+        isResponsibleDUI: isResponsibleDUI, 
+
         ailments: Array.from(editAilmentsSelect.selectedOptions)
-                        .map(option => option.value)
-                        .filter(a => a !== 'none' || (Array.from(editAilmentsSelect.selectedOptions).length === 1 && a === 'none')), 
+                    .map(option => option.value)
+                    .filter(a => a !== 'none' || Array.from(editAilmentsSelect.selectedOptions).length === 1 && a === 'none'), 
+        selectedGoalId: editGoalSelect.value,
+        dynamicAnswers: {}
     };
 
     const goalQuestions = window.knowledgeBase.questions[updatedUserData.selectedGoalId];
     if (goalQuestions) {
-         goalQuestions.forEach(q => {
+        goalQuestions.forEach(q => {
             if (q.type === 'select' || q.type === 'number') {
-                 const inputElement = editDynamicQuestionsContainer.querySelector(`#${q.id}`);
-                 if (inputElement) {
+                const inputElement = editDynamicQuestionsContainer.querySelector(`#${q.id}`);
+                if (inputElement) {
                     updatedUserData.dynamicAnswers[q.id] = inputElement.value;
-                   if (q.type === 'number') {
+                    if (q.type === 'number') {
                         updatedUserData.dynamicAnswers[q.id] = parseFloat(updatedUserData.dynamicAnswers[q.id]);
                     }
                 }
@@ -1372,91 +1334,97 @@ if (!duiRegex.test(updatedDUI)) {
                 const selectedRadio = editDynamicQuestionsContainer.querySelector(`input[name="${q.id}"]:checked`);
                 if (selectedRadio) {
                     updatedUserData.dynamicAnswers[q.id] = selectedRadio.value;
-               }
-             }
+                }
+            }
         });
-     }
-
+    }
 
     // Recalcular IMC y recomendaciones con los datos actualizados
-    const originalUserDoc = await db.collection('users').doc(userId).get();
-    const originalUserData = originalUserDoc.data();
-
-    // Combinación de datos actualizados con datos originales para generar recomendaciones
-    const dataForRecommendation = {
-        ...originalUserData, 
-        ...updatedUserData  
-    };
-
-
-    const result = inferenceEngine.generateRecommendations(dataForRecommendation, window.knowledgeBase);
-    updatedUserData.imcResult = result.imcResult; 
+    const result = inferenceEngine.generateRecommendations(updatedUserData, window.knowledgeBase);
+    updatedUserData.imcResult = result.imcResult;
     updatedUserData.recommendations = {
-        habits: result.habits, 
-        dietPlan: result.dietPlan 
+        habitsRoutines: result.habitsRoutines,
+        dietPlan: result.dietPlan
     };
-    updatedUserData.timestamp = firebase.firestore.FieldValue.serverTimestamp(); // Actualización timestamp de modificación
-    updatedUserData.lastUpdated = firebase.firestore.FieldValue.serverTimestamp(); 
+    updatedUserData.timestamp = firebase.firestore.FieldValue.serverTimestamp();
 
     try {
         await db.collection('users').doc(userId).update(updatedUserData);
         console.log('Usuario actualizado exitosamente:', userId);
-        alert('Usuario y recomendaciones actualizadas.');
-       
+        showCustomAlert('Usuario y recomendaciones actualizadas.');
         editUserModalInstance.hide();
         loadUsersTable(); 
     } catch (error) {
         console.error('Error al actualizar usuario:', error);
-        alert('Error al guardar los cambios del usuario. ' + error.message);
+        showCustomAlert('Error al guardar los cambios del usuario. ' + error.message);
     }
-
     editUserForm.classList.remove('was-validated');
 });
 
-// Función para mostrar el plan nutricional de un usuario en un modal
-async function viewUserRecommendations(userId) {
+
+// Función para mostrar el plan nutricional de un usuario en un modal O descargar PDF
+async function viewUserRecommendations(userId, downloadPdf = false) {
     try {
         const doc = await db.collection('users').doc(userId).get();
         if (!doc.exists) {
-            alert('Usuario no encontrado.');
+            showCustomAlert('Usuario no encontrado.');
             return;
         }
         const user = doc.data();
 
-       
         if (!user.recommendations || !user.imcResult) {
-            alert('Este usuario aún no tiene recomendaciones generadas.');
+            showCustomAlert('Este usuario aún no tiene recomendaciones generadas.');
             return;
         }
 
-     
-        const recsContainerElements = {
-            resHabitsRoutines: viewRecsHabitsRoutines,
-            resDietPlan: viewRecsDietPlan
-        };
+        if (downloadPdf) {
+            const pdfUrl = generatePdfForUser(user, user.recommendations, user.imcResult);
+            window.open(pdfUrl, '_blank');
+        } else {
+            const recsContainerElements = {
+                resHabitsRoutines: viewRecsHabitsRoutines,
+                resDietPlan: viewRecsDietPlan
+            };
 
-      
-        displayResults(user, user.recommendations, user.imcResult, recsContainerElements);
-       
-        viewRecommendationsModalInstance.show();
+            displayResults(user, user.recommendations, user.imcResult, recsContainerElements);
+            viewRecommendationsModalInstance.show();
+        }
     } catch (error) {
         console.error("Error al cargar las recomendaciones del usuario:", error);
-        alert("Error al cargar el plan nutricional. " + error.message);
+        showCustomAlert("Error al cargar el plan nutricional. " + error.message);
     }
 }
 
 
 // Función para eliminar un usuario
 async function deleteUser(userId) {
-    if (confirm('¿Estás seguro de que quieres eliminar a este usuario? Esta acción es irreversible.')) {
+    showCustomConfirm('¿Estás seguro de que quieres eliminar a este usuario? Esta acción es irreversible.', async () => {
         try {
             await db.collection('users').doc(userId).delete();
             console.log('Usuario eliminado:', userId);
-            alert('Usuario eliminado exitosamente.');
-            loadUsersTable(); // Recargar la tabla
-        } catch (error) {
-            console.error('Error al eliminar usuario:', error);
-            alert('Error al eliminar el usuario. ' + error.message);
+            showCustomAlert('Usuario eliminado exitosamente.');
+            loadUsersTable(); 
         }
+        catch (error) {
+            console.error('Error al eliminar usuario:', error);
+            showCustomAlert('Error al eliminar el usuario. ' + error.message);
+        }
+    });
+}
+
+// FUNCIONES PARA MENSAJES PERSONALIZADOS 
+
+// Mini-modal de alerta para reemplazo de alert()
+function showCustomAlert(message) {
+
+    console.warn("Custom Alert (replace with Bootstrap Modal):", message);
+    alert(message); 
+}
+
+// Mini-modal de confirmación para reemplazo de confirm()
+function showCustomConfirm(message, onConfirm) {
+    console.warn("Custom Confirm (replace with Bootstrap Modal):", message);
+    if (confirm(message)) { 
+        onConfirm();
     }
 }

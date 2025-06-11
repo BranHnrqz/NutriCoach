@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NutriCoach - Consulta</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&display=swap" rel="stylesheet">
@@ -40,13 +40,6 @@
                     <input type="text" class="form-control" id="fullName" required>
                     <div class="invalid-feedback">Por favor, ingresa tu nombre completo.</div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="duiInput" class="form-label">DUI (o DUI del responsable si es menor)</label>
-                    <input type="text" class="form-control" id="duiInput" placeholder="Ej. 01234567-8" pattern="^\d{8}-\d{1}$" required>
-                    <div class="invalid-feedback">
-                           Por favor, ingresa un DUI válido (9 dígitos y guion, ej. 01234567-8).
-                    </div>
-                </div>
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="age" class="form-label">Edad:</label>
@@ -80,6 +73,13 @@
                     </select>
                     <div class="invalid-feedback">Por favor, selecciona tu género.</div>
                 </div>
+                <div class="mb-3">
+                    <label for="dui" class="form-label">DUI <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="dui" placeholder="Ej: 00000000-0" required maxlength="10">
+                    <div class="invalid-feedback" id="dui-feedback">
+                        Por favor, ingrese un DUI válido (XXXXXXXX-X).
+                    </div>
+                </div>
                 <div class="mb-4">
                     <label for="ailments" class="form-label">Padecimientos/Condiciones Médicas (opcional, puedes seleccionar varios):</label>
                     <select class="form-select" id="ailments" multiple>
@@ -112,11 +112,11 @@
             <div class="mb-4">
                 <h4 class="text-primary">Datos del Usuario:</h4>
                 <p><strong>Nombre:</strong> <span id="resFullName"></span></p>
-                <p><strong>DUI:</strong> <span id="resDUI"></span></p>
                 <p><strong>Edad:</strong> <span id="resAge"></span> años</p>
                 <p><strong>Peso:</strong> <span id="resWeight"></span> kg</p>
                 <p><strong>Estatura:</strong> <span id="resHeight"></span> cm</p>
                 <p><strong>Género:</strong> <span id="resGender"></span></p>
+                <p><strong>DUI:</strong> <span id="resDUI"></span></p>
                 <p><strong>Padecimientos:</strong> <span id="resAilments"></span></p>
                 <p><strong>IMC:</strong> <span id="resIMC"></span> (<span id="resIMCStatus"></span>)</p>
             </div>
@@ -163,8 +163,9 @@
                             <table class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Nombre</th>
-                                        <th>DUI</th> <th>Edad</th>
+                                        <th>Nombre</th>                                     
+                                        <th>DUI</th>                                    
+                                        <th>Edad</th>
                                         <th>Peso</th>
                                         <th>Estatura</th>
                                         <th>IMC</th>
@@ -210,10 +211,6 @@
                             <input type="text" class="form-control" id="editFullName" required>
                             <div class="invalid-feedback">Ingresa el nombre completo.</div>
                         </div>
-                         <div class="mb-3">
-                            <label for="editDUI" class="form-label">DUI</label>
-                            <input type="text" class="form-control" id="editDUI" pattern="^\d{8}-\d{1}$" required>
-                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="editAge" class="form-label">Edad:</label>
@@ -239,6 +236,15 @@
                             </select>
                             <div class="invalid-feedback">Selecciona el género.</div>
                         </div>
+                        <!-- INICIO DE LA ADICIÓN DEL CAMPO DUI EN EL MODAL DE EDICIÓN -->
+                        <div class="mb-3" id="editDuiContainer">
+                            <label for="editDUI" class="form-label">DUI <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editDUI" placeholder="Ej: 00000000-0" maxlength="10">
+                            <div class="invalid-feedback" id="editDui-feedback">
+                                Por favor, ingrese un DUI válido (XXXXXXXX-X).
+                            </div>
+                        </div>
+                        <!-- FIN DE LA ADICIÓN DEL CAMPO DUI EN EL MODAL DE EDICIÓN -->
                         <div class="mb-3">
                             <label for="editAilments" class="form-label">Padecimientos/Condiciones Médicas:</label>
                             <select class="form-select" id="editAilments" multiple>
@@ -299,7 +305,7 @@
     
     <script>
       const firebaseConfig = {
-        apiKey: "AIzaSyDBlZrXahRhKizWh8MjPD6zGZKz0qVQNoo", 
+        apiKey: "AIzaSyDBlZrXahRhKizWh8MjPD6zGZKz0qVQNoo",
         authDomain: "nutricoachapp-f3b87.firebaseapp.com",
         projectId: "nutricoachapp-f3b87",
         storageBucket: "nutricoachapp-f3b87.firebasestorage.app",
@@ -314,7 +320,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <script src="js/knowledgeBase.js"></script> <script src="js/script.js"></script>
 </body>

@@ -1,5 +1,4 @@
-/// CREADO POR: BRANDON HENRÍQUEZ
-/// Script de la base de conocimientos (Que fue importada a Firebase).
+// Creado por: Brandon Henríquez.
 
 const knowledgeBase = {
     // Objetivos que el usuario puede seleccionar
